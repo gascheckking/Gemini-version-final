@@ -66,8 +66,8 @@ body {
 }
 
 .logo-icon-fixed {
-  width: auto; 
-  height: 32px; /* Anpassad storlek för header-logga */
+  width: auto;
+  height: 48px; /* Ännu lite större */
   background: transparent;
   border: none;
   vertical-align: middle;
