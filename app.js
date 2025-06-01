@@ -5,9 +5,9 @@
 // Exempelvis kan Vercel bygga en env-config.js fil eller injicera dem.
 // Här är de bara placeholders.
 const WARPAI_CONFIG = {
-  ALCHEMY_BASE_API_URL: `https://base-mainnet.g.alchemy.com/v2/${window.ALCHEMY_API_KEY || 'YOUR_ALCHEMY_BASE_KEY'}`, // Ersätt med faktisk nyckel från Vercel env
-  ETHERSCAN_API_KEY: window.ETHERSCAN_API_KEY || 'YOUR_ETHERSCAN_KEY', // Ersätt med faktisk nyckel från Vercel env
-  WALLETCONNECT_PROJECT_ID: window.WALLETCONNECT_PROJECT_ID || 'c0aa1ca206eb7d58226102b102ec49e9', // WalletConnect v1 "key" can be used as project ID conceptually for v1 provider
+  ALCHEMY_BASE_API_URL: `https://base-mainnet.g.alchemy.com/v2/${window.ALCHEMY_API_KEY || 'X2bNp1BarPcBcHiWR6vHxJz_lGbA'}`, // Ersätt med faktisk nyckel från Vercel env
+  ETHERSCAN_API_KEY: window.ETHERSCAN_API_KEY || 'Y1VRJKQB1A4K2JTA8GE1YDH3W54W4I35D5', // Ersätt med faktisk nyckel från Vercel env
+  WALLETCONNECT_PROJECT_ID: window.WALLETCONNECT_PROJECT_ID || '0bd9dbdd237566a423e52e836d2d687a', // WalletConnect v1 "key" can be used as project ID conceptually for v1 provider
   TARGET_CHAIN_ID: 8453, // Base Mainnet
   TARGET_CHAIN_NAME: 'Base',
   TRUST_WALLET_URI_FALLBACK: 'https://link.trustwallet.com/wc?uri='
