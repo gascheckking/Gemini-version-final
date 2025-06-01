@@ -1,1 +1,27 @@
+# Lokala miljövariabler och konfigurationsfiler
+.env
+env-config.js # Om du skapar en lokal version för testning
 
+# Node.js / npm / yarn beroenden (om du använder det i framtiden)
+node_modules/
+
+# Byggmappar (om du använder ett byggsteg i framtiden)
+dist/
+build/
+
+# IDE/Editor-specifika filer
+.vscode/
+.idea/
+
+# Operativsystem-specifika filer
+.DS_Store
+Thumbs.db
+
+# Loggfiler
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Vercel-specifika filer (om de skapas lokalt och inte ska med)
+.vercel/
