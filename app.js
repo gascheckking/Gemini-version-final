@@ -241,18 +241,15 @@ document.addEventListener('DOMContentLoaded', () => {
       });
   }
 
-
-  // Återställ UI vid laddning
   updateWalletUI();
-  updateXPUI(0); // Start XP, kommer uppdateras om ansluten och data hämtas
+  updateXPUI(0); 
 });
 
-// ----- WALLET CONNECTION LOGIC ----- //
 async function handleConnectDisconnect() {
   if (userAddress) {
     await disconnectWallet();
   } else {
-    // Försök ansluta med MetaMask först, sedan WalletConnect som fallback
+  
     try {
       showToast('Attempting to connect wallet...', 'info', 1000);
       await connectMetaMask();
