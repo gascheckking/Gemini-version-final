@@ -32,31 +32,103 @@ async function initializeWeb3Modal() {
     }
 
     try {
+        // Initiera Web3Modal (anropas senare från DOMContentLoaded)
+async function initializeWeb3Modal() {
+    // Kontrollera först att ditt WalletConnect Project ID finns och ser rimligt ut
+    if (!WARPAI_CONFIG.WALLETCONNECT_PROJECT_ID || WARPAI_CONFIG.WALLETCONNECT_PROJECT_ID.length < 20) { // Enkel validering
+        console.error("WalletConnect Project ID är ogiltigt eller saknas i WARPAI_CONFIG!");
+        showToast("WalletConnect är inte korrekt konfigurerat.", "error");
+        return;
+    }
+
+    try {
         // Kontrollera om Web3Modal-biblioteket har laddats från CDN:en
-        if (!window.Web3Modal || !window.Web3Modal.Web3Modal) {
+        // (Antag att CDN-skriptet https://cdn.jsdelivr.net/npm/@web3modal/standalone@3.5.7/dist/index.umd.js
+        //  skapar ett globalt window.Web3Modal.Standalone eller window.Web3Modal.Web3Modal)
+        if (!window.Web3Modal || !window.Web3Modal.Web3Modal) { 
             console.error("Web3Modal Standalone är inte laddad korrekt från CDN. Kontrollera script-taggen i index.html.");
             showToast("Kunde inte ladda plånboksbibliotek.", "error");
             return;
         }
 
         // Skapa Web3Modal-instansen
-        web3Modal = new window.Web3Modal.Web3Modal({
+        web3Modal = new window.Web3Modal.Web3Modal({ // Eller Web3Modal.Standalone beroende på exakt UMD-export
             projectId: WARPAI_CONFIG.WALLETCONNECT_PROJECT_ID,
-            // `chains` är ofta valfritt för Web3Modal v3 då den kan hämta från metadata, 
-            // men om du behöver specificera:
-            // chains: [WARPAI_CONFIG.TARGET_CHAIN_ID], // Kan behöva en array med kedjeobjekt istället för bara ID
-            // enableExplorer: true, // Valfritt, för WalletConnects explorer
-            // themeMode: 'dark' // Om du vill matcha ditt tema
+            // chains: [WARPAI_CONFIG.TARGET_CHAIN_ID], // Ofta valfritt, modalen kan föreslå nätverksbyte
+            // enableExplorer: true,
+            // themeMode: 'dark' 
         });
-        console.log("Web3Modal Standalone initierad.");
+        console.log("Web3Modal Standalone initierad. Prenumererar på state...");
+
+        // Prenumerera på state-ändringar från Web3Modal
+        // Detta hanterar logiken när användaren ansluter, byter konto/nätverk, eller kopplar från.
+        web3Modal.subscribeState(async (state) => {
+            console.log("Web3Modal State:", state); // För felsökning
+
+            const newAddress = state.data?.address;
+            const newChainId = state.data?.chainId; // Kan också vara state.data.selectedNetworkId
+            const newIsConnected = state.data?.isConnected;
+
+            if (newIsConnected && newAddress && newChainId) {
+                // Om redan ansluten till samma adress och kedja, gör inget extra
+                if (userAddress && newAddress.toLowerCase() === userAddress.toLowerCase() && provider) {
+                    const network = await provider.getNetwork();
+                    if (network.chainId === newChainId) {
+                        // console.log("Redan ansluten till samma adress och kedja.");
+                        return; 
+                    }
+                }
+                
+                if (newChainId !== WARPAI_CONFIG.TARGET_CHAIN_ID) {
+                    showToast(`Fel nätverk! Byt till ${WARPAI_CONFIG.TARGET_CHAIN_NAME}. Ansluten till kedja ID: ${newChainId}`, 'warning');
+                    // Försök att stänga modalen och koppla från om fel nätverk
+                    web3Modal.closeModal();
+                    if (userAddress) await disconnectWallet(); 
+                    return;
+                }
+
+                try {
+                    const modalProvider = web3Modal.getWalletProvider();
+                    if (modalProvider) {
+                        provider = new ethers.providers.Web3Provider(modalProvider);
+                        signer = provider.getSigner();
+                        // Dubbelkolla att adressen från signer matchar den från state
+                        const signerAddress = await signer.getAddress();
+                        if (signerAddress.toLowerCase() !== newAddress.toLowerCase()) {
+                            console.warn("Adress från signer matchar inte adress från Web3Modal state. Använder state-adress.");
+                            userAddress = newAddress; // Eller hantera felet
+                        } else {
+                            userAddress = signerAddress;
+                        }
+                        
+                        currentWalletType = web3Modal.getWalletInfo?.()?.name || 'Web3Modal';
+                        
+                        console.log(`Ansluten med ${currentWalletType}: ${userAddress} på kedja ${newChainId}`);
+                        await onSuccessfulConnect(); // Din befintliga funktion för lyckad anslutning
+                        web3Modal.closeModal(); // Stäng modalen efter lyckad anslutning om den är öppen
+                    } else if (!userAddress) { 
+                        console.warn("Web3Modal state indikerar anslutning, men ingen provider tillgänglig direkt.");
+                        // Detta kan vara ett tillfälligt tillstånd, kan behöva vänta/försöka igen eller så är det ett fel.
+                    }
+                } catch (e) {
+                    console.error("Fel vid skapande av provider/signer från Web3Modal:", e);
+                    showToast("Kunde inte slutföra anslutning.", "error");
+                    await disconnectWallet();
+                }
+            } else if (!newIsConnected && userAddress) {
+                // Användaren har kopplat från (antingen via modalen, plånboken, eller sessionen avslutades)
+                console.log("Web3Modal state indikerar frånkoppling. Rensar vår apps state.");
+                await disconnectWallet();
+            }
+        });
+        console.log("Web3Modal prenumeration på state är nu aktiv.");
 
     } catch (e) {
-        console.error("Kunde inte initiera Web3Modal Standalone:", e);
+        console.error("Kunde inte initiera Web3Modal Standalone eller prenumerera på state:", e);
         showToast("Kunde inte ladda plånboksval.", "error");
     }
 }
 
-// DOM Element-referenser (hämtas när DOM är laddad)
 let connectWalletBtn, walletAddressDisplay, xpDisplayHeader, totalXPDisplay, currentXPDisplayHome;
 let claimTokenBtn, buyTokenBtn, upgradeBtn;
 let qrModal, qrCodeDiv;
