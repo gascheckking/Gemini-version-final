@@ -87,7 +87,10 @@ document.addEventListener('DOMContentLoaded', () => {
   qrModal = document.getElementById('qrModal');
   qrCodeDiv = document.getElementById('qrCode');
 
-  // Onboarding-logik
+  initializeWeb3Modal(); // NYTT ANROP för att förbereda Web3Modal
+
+  // Onboarding-logik 
+  // (Resten av din DOMContentLoaded fortsätter härifrån...)
   if (onboardingOverlay && appContent) {
     console.log('Onboarding overlay and app content found');
     setTimeout(() => {
