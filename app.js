@@ -281,21 +281,24 @@ async function onSuccessfulConnect() {
   if (connectWalletProfileBtn) connectWalletProfileBtn.style.display = 'none';
 }
 
+// I app.js, ersätt din nuvarande disconnectWallet funktion med denna:
 async function disconnectWallet() {
   try {
     if (currentWalletType === 'walletconnect' && walletConnectProvider && walletConnectProvider.connected) {
-      await walletConnectProvider.disconnect();
+      await walletConnectProvider.disconnect(); // Försöker koppla från sessionen
     }
-    // För MetaMask, rensa bara state, ingen specifik disconnect-metod behövs på samma sätt
+    // Ta bort WalletConnects sessionsdata explicit från localStorage
+    localStorage.removeItem('walletconnect'); // Nyckeln som WalletConnect v1 ofta använder
+
   } catch (error) {
     console.error('Error during wallet disconnect:', error);
   } finally {
-    resetWalletState();
-    updateWalletUI();
-    updateXPUI(0); // Återställ XP i UI
-    // localStorage.clear(); // Överväg noga vad som ska rensas. Kanske bara anslutningsspecifik data.
+    resetWalletState(); // Nollställer dina globala variabler (provider, signer, userAddress etc.)
+    updateWalletUI();   // Uppdaterar UI till frånkopplat läge
+    updateXPUI(0);      // Nollställer XP i UI (eller ladda från sparad data om du har det)
     showToast('Wallet disconnected', 'info');
-    
+
+    // Uppdatera knappar i profilsektionen (om de finns)
     const disconnectProfileBtn = document.getElementById('disconnectWalletBtn');
     if (disconnectProfileBtn) disconnectProfileBtn.style.display = 'none';
     const connectWalletProfileBtn = document.getElementById('connectWalletProfile');
