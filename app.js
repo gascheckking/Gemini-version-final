@@ -19,6 +19,42 @@ let signer = null;
 let userAddress = null;
 let currentWalletType = null; // 'metamask' or 'walletconnect'
 let walletConnectProvider = null; // För att kunna hantera WalletConnect-specifik disconnect
+// Web3Modal-instans (global)
+let web3Modal;
+
+// Initiera Web3Modal (anropas senare från DOMContentLoaded)
+async function initializeWeb3Modal() {
+    // Kontrollera först att ditt WalletConnect Project ID finns och ser rimligt ut
+    if (!WARPAI_CONFIG.WALLETCONNECT_PROJECT_ID || WARPAI_CONFIG.WALLETCONNECT_PROJECT_ID.length < 20) { // Enkel validering
+        console.error("WalletConnect Project ID är ogiltigt eller saknas i WARPAI_CONFIG!");
+        showToast("WalletConnect är inte korrekt konfigurerat.", "error");
+        return;
+    }
+
+    try {
+        // Kontrollera om Web3Modal-biblioteket har laddats från CDN:en
+        if (!window.Web3Modal || !window.Web3Modal.Web3Modal) {
+            console.error("Web3Modal Standalone är inte laddad korrekt från CDN. Kontrollera script-taggen i index.html.");
+            showToast("Kunde inte ladda plånboksbibliotek.", "error");
+            return;
+        }
+
+        // Skapa Web3Modal-instansen
+        web3Modal = new window.Web3Modal.Web3Modal({
+            projectId: WARPAI_CONFIG.WALLETCONNECT_PROJECT_ID,
+            // `chains` är ofta valfritt för Web3Modal v3 då den kan hämta från metadata, 
+            // men om du behöver specificera:
+            // chains: [WARPAI_CONFIG.TARGET_CHAIN_ID], // Kan behöva en array med kedjeobjekt istället för bara ID
+            // enableExplorer: true, // Valfritt, för WalletConnects explorer
+            // themeMode: 'dark' // Om du vill matcha ditt tema
+        });
+        console.log("Web3Modal Standalone initierad.");
+
+    } catch (e) {
+        console.error("Kunde inte initiera Web3Modal Standalone:", e);
+        showToast("Kunde inte ladda plånboksval.", "error");
+    }
+}
 
 // DOM Element-referenser (hämtas när DOM är laddad)
 let connectWalletBtn, walletAddressDisplay, xpDisplayHeader, totalXPDisplay, currentXPDisplayHome;
