@@ -32,16 +32,6 @@ async function initializeWeb3Modal() {
     }
 
     try {
-        // Initiera Web3Modal (anropas senare från DOMContentLoaded)
-async function initializeWeb3Modal() {
-    // Kontrollera först att ditt WalletConnect Project ID finns och ser rimligt ut
-    if (!WARPAI_CONFIG.WALLETCONNECT_PROJECT_ID || WARPAI_CONFIG.WALLETCONNECT_PROJECT_ID.length < 20) { // Enkel validering
-        console.error("WalletConnect Project ID är ogiltigt eller saknas i WARPAI_CONFIG!");
-        showToast("WalletConnect är inte korrekt konfigurerat.", "error");
-        return;
-    }
-
-    try {
         // Kontrollera om Web3Modal-biblioteket har laddats från CDN:en
         // (Antag att CDN-skriptet https://cdn.jsdelivr.net/npm/@web3modal/standalone@3.5.7/dist/index.umd.js
         //  skapar ett globalt window.Web3Modal.Standalone eller window.Web3Modal.Web3Modal)
