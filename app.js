@@ -375,33 +375,48 @@ function handleChainChangedWC(chainId) {
 
 
 // ----- UI UPDATE FUNCTIONS ----- //
+// I app.js, ersätt din nuvarande updateWalletUI funktion med denna:
 function updateWalletUI() {
-  const sharedButtonText = userAddress ? 'Disconnect' : 'Connect Wallet';
-  const sharedAddressText = userAddress ? shortenAddress(userAddress) : 'Not Connected';
+  const connectWalletBtn = document.getElementById('connectWallet'); // Se till att denna hämtas korrekt
+  const walletAddressDisplay = document.getElementById('walletAddress'); // Span-elementet
 
-  if (connectWalletBtn) connectWalletBtn.textContent = sharedButtonText;
-  
-  const connectWalletProfileBtn = document.getElementById('connectWalletProfile');
-  if (connectWalletProfileBtn) { // Uppdatera text på profilknappen också
-      connectWalletProfileBtn.textContent = sharedButtonText;
-      connectWalletProfileBtn.style.display = userAddress ? 'none' : 'inline-block';
+  if (userAddress) {
+    // Ansluten: Knappen visar adressen, span-elementet döljs
+    if (connectWalletBtn) {
+      connectWalletBtn.textContent = shortenAddress(userAddress); // Visar t.ex. "0x123...abcd"
+      // Du kan lägga till en liten ikon eller text om du vill förtydliga att det är en knapp, t.ex.:
+      // connectWalletBtn.innerHTML = `${shortenAddress(userAddress)} <small>(disconnect)</small>`; 
+    }
+    if (walletAddressDisplay) {
+      walletAddressDisplay.style.display = 'none'; // Dölj den separata text-spanen
+    }
+    
+    // Hantera profilknapparna (om de finns och är separata)
+    const connectWalletProfileBtn = document.getElementById('connectWalletProfile');
+    if (connectWalletProfileBtn) connectWalletProfileBtn.style.display = 'none';
+    const disconnectProfileBtn = document.getElementById('disconnectWalletBtn');
+    if (disconnectProfileBtn) disconnectProfileBtn.style.display = 'inline-block';
+
+  } else {
+    // Frånkopplad: Knappen visar "Connect Wallet", span-elementet döljs
+    if (connectWalletBtn) {
+      connectWalletBtn.textContent = 'Connect Wallet';
+    }
+    if (walletAddressDisplay) {
+      walletAddressDisplay.style.display = 'none'; // Dölj den separata text-spanen
+    }
+
+    // Hantera profilknapparna
+    const connectWalletProfileBtn = document.getElementById('connectWalletProfile');
+    if (connectWalletProfileBtn) connectWalletProfileBtn.style.display = 'inline-block';
+    const disconnectProfileBtn = document.getElementById('disconnectWalletBtn');
+    if (disconnectProfileBtn) disconnectProfileBtn.style.display = 'none';
   }
-  
-  const disconnectProfileBtn = document.getElementById('disconnectWalletBtn');
-  if (disconnectProfileBtn) {
-      disconnectProfileBtn.style.display = userAddress ? 'inline-block' : 'none';
-  }
 
-  if (walletAddressDisplay) walletAddressDisplay.textContent = sharedAddressText;
-  const walletAddressProfileDisplay = document.getElementById('walletAddressProfile');
-  if (walletAddressProfileDisplay) walletAddressProfileDisplay.textContent = sharedAddressText;
-
-
-  // Logik för att visa/dölja element baserat på anslutningsstatus
-  const viewFarcasterProfileBtn = document.getElementById('viewFarcasterProfileBtn');
-  const farcasterProfileTooltip = document.getElementById('farcasterProfileTooltip');
-  if (viewFarcasterProfileBtn) viewFarcasterProfileBtn.disabled = !userAddress;
-  if (farcasterProfileTooltip) farcasterProfileTooltip.style.display = userAddress ? 'none' : 'block';
+  // Se till att huvudknappens text/funktion för connect/disconnect i headern också hanteras
+  // (Detta görs redan av handleConnectDisconnect som anropas av knappen)
+  // Den befintliga connectWalletBtn.addEventListener('click', handleConnectDisconnect);
+  // kommer fortfarande att växla mellan att ansluta och koppla från.
 }
 
 function updateXPUI(xp) {
