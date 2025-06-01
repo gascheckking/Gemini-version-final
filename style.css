@@ -67,7 +67,7 @@ body {
 
 .logo-icon-fixed {
   width: auto;
-  height: 48px; /* Ännu lite större */
+  height: 100px; /* Ännu lite större */
   background: transparent;
   border: none;
   vertical-align: middle;
